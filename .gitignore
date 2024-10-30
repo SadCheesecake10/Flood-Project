@@ -1,0 +1,36 @@
+# virtual environment
+venv/
+env/
+ENV/
+
+# cache files
+__pycache__/
+*.py[cod]
+
+# data files
+data/csv/
+data/train/
+data/val/
+
+# model files
+*.pt
+
+# logfiles
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+
+# build files
+build/
+dist/
+*.egg-info/
+*.egg
+
+# config
+*.env
+local_settings.py
