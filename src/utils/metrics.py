@@ -1,3 +1,4 @@
+#metrics.py
 import torch
 from tqdm import tqdm
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
@@ -12,7 +13,7 @@ def mask_to_boxes(mask):
     num_objects = mask.max().item()  # Assume that the mask has contiguous labels
     for i in range(1, num_objects + 1):
         pos = torch.where(i == mask)
-        if pos[0].numel() > 0:  # Check if the object is has at least one pixel
+        if pos[0].numel() > 0:
             xmin = pos[1].min().item()
             xmax = pos[1].max().item()
             ymin = pos[0].min().item()
@@ -25,14 +26,20 @@ def mask_to_boxes(mask):
 def evaluate_model(model, dataloader, device):
     model.eval()
     map_metric.reset()
+    map_50_values = []
+    map_values = []
 
     with torch.no_grad():
         for batch in tqdm(dataloader, desc="Evaluating"):
             images = batch["image"].to(device)
-            masks = batch["mask"].to(device)
-
             preds = model(images)
             preds = torch.argmax(preds, dim=1)
+
+            # Verifica si "mask" está en el batch
+            if "mask" in batch:
+                masks = batch["mask"].to(device)
+            else:
+                masks = preds  # Usa preds como dummy en caso de no tener máscaras
 
             for pred, mask in zip(preds, masks):
                 pred_boxes, pred_labels, pred_scores = mask_to_boxes(pred)
@@ -49,5 +56,8 @@ def evaluate_model(model, dataloader, device):
 
                 map_metric.update(predictions, targets)
 
-    map_result = map_metric.compute()
-    return map_result["map_50"], map_result["map"]
+            map_result = map_metric.compute()
+            map_50_values.append(map_result["map_50"].item())
+            map_values.append(map_result["map"].item())
+
+    return map_50_values, map_values

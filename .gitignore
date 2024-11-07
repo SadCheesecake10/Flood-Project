@@ -11,6 +11,7 @@ __pycache__/
 data/csv/
 data/train/
 data/val/
+output/
 
 # model files
 *.pt

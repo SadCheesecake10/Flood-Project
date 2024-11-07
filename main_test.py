@@ -1,15 +1,20 @@
+#main_test.py
 import numpy as np
 import torch
 import pandas as pd
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import segmentation_models_pytorch as smp
+import matplotlib.pyplot as plt
+import os
 import warnings
 
 from src.data.datasets.s1_dataset import S1Dataset
 from src.utils.visualization import plot_prediction
+from src.utils.metrics import evaluate_map50, evaluate_map50_95
 
 warnings.filterwarnings("ignore")
+os.makedirs("output", exist_ok=True)
 
 # Predict function
 def predict(model, device, test_dataloader):
@@ -23,6 +28,30 @@ def predict(model, device, test_dataloader):
             predictions.extend(pred_class)
 
     return np.array(predictions)
+
+
+
+def plot_map_results(map_50_values, map_values):
+    # Plot para mAP@0.5
+    plt.figure(figsize=(10, 5))
+    plt.plot(map_50_values, label="mAP@0.5", color="blue")
+    plt.xlabel("Batch")
+    plt.ylabel("mAP@0.5")
+    plt.title("Mean Average Precision (mAP@0.5) per Batch")
+    plt.legend()
+    plt.savefig("output/map_50_plot.png")  # Guarda el gráfico en la carpeta output
+    plt.close()
+
+    # Plot para mAP
+    plt.figure(figsize=(10, 5))
+    plt.plot(map_values, label="mAP", color="green")
+    plt.xlabel("Batch")
+    plt.ylabel("mAP")
+    plt.title("Mean Average Precision (mAP) per Batch")
+    plt.legend()
+    plt.savefig("output/map_plot.png")  # Guarda el gráfico en la carpeta output
+    plt.close()
+
 
 if __name__ == "__main__":
     # Load test paths
@@ -50,4 +79,8 @@ if __name__ == "__main__":
     plot_prediction(df_test_paths.iloc[9100], predictions[9100])
     plot_prediction(df_test_paths.iloc[1945], predictions[1945])
     plot_prediction(df_test_paths.iloc[6457], predictions[6457])
+    
+    map50 = evaluate_map50(model, test_dataloader, device)
+    map50_95= evaluate_map50_95(model, test_dataloader, device)
+    plot_map_results(map50, map50_95)
     
