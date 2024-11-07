@@ -11,7 +11,7 @@ import warnings
 
 from src.data.datasets.s1_dataset import S1Dataset
 from src.utils.visualization import plot_prediction
-from src.utils.metrics import evaluate_map50, evaluate_map50_95
+from src.utils.metrics import evaluate_model
 
 warnings.filterwarnings("ignore")
 os.makedirs("output", exist_ok=True)
@@ -74,13 +74,12 @@ if __name__ == "__main__":
     predictions = predict(model, device, test_dataloader)
 
     # Plot some predictions of the test set
-    plot_prediction(df_test_paths.iloc[1905], predictions[1905])
-    plot_prediction(df_test_paths.iloc[2967], predictions[2967])
-    plot_prediction(df_test_paths.iloc[9100], predictions[9100])
-    plot_prediction(df_test_paths.iloc[1945], predictions[1945])
-    plot_prediction(df_test_paths.iloc[6457], predictions[6457])
+    #plot_prediction(df_test_paths.iloc[1905], predictions[1905])
+    #plot_prediction(df_test_paths.iloc[2967], predictions[2967])
+    #plot_prediction(df_test_paths.iloc[9100], predictions[9100])
+    #plot_prediction(df_test_paths.iloc[1945], predictions[1945])
+    #plot_prediction(df_test_paths.iloc[6457], predictions[6457])
     
-    map50 = evaluate_map50(model, test_dataloader, device)
-    map50_95= evaluate_map50_95(model, test_dataloader, device)
-    plot_map_results(map50, map50_95)
+    map_50_values, map_values = evaluate_model(model, test_dataloader, device)
+    plot_map_results(map_50_values, map_values)
     
